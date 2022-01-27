@@ -39,6 +39,7 @@ button:hover {
     height: 450px;
     grid-template-areas:
         "text text text text"
+        "lbracket rbracket x empty"
         "clear del root div"
         "seven eight nine multi"
         "four five six minus"
@@ -55,8 +56,12 @@ button:hover {
     padding: 2px;
 }
 
-.cellSpace{
-    padding-right: 20px;
+.lbracket{
+    grid-area: lbracket;
+}
+
+.rbracket{
+    grid-area: rbracket;
 }
 
 .div{

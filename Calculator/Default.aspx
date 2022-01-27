@@ -3,7 +3,9 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
         <ContentTemplate>
-            <asp:Label ID="Label1" runat="server" Text="Label"></asp:Label>
+            <asp:Label ID="ErrorLabel" runat="server" Text=""></asp:Label>
+            <asp:Label ID="AlertLabel" runat="server" Text=""></asp:Label>
+            <asp:Label ID="DebugLabel" runat="server" Text=""></asp:Label>
             <div class="calculator">
                 <asp:TextBox ID="DisplayTextBox" CssClass="display text" runat="server"></asp:TextBox>
 
@@ -21,13 +23,17 @@
 
                 <asp:Button ID="Button0" runat="server" Text="0" CssClass="calculatorButton zero" OnClick="Number_Click" />
 
-                <asp:Button ID="ButtonNegative" runat="server" Text="+/-" CssClass="calculatorButton neg" OnClick="ButtonNegative_Click" />
+                <asp:Button ID="ButtonNegative" runat="server" Text="+/-" CssClass="calculatorButton neg" />
                 <asp:Button ID="ButtonDot" runat="server" Text="." CssClass="calculatorButton dot" OnClick="ButtonDot_Click" />
                 <asp:Button ID="ButtonResult" runat="server" Text="=" CssClass="calculatorButton result" OnClick="ButtonResult_Click" />
 
                 <asp:Button ID="ButtonDelete" runat="server" Text="DEL" CssClass="calculatorButton del" OnClick="ButtonDelete_Click" />
                 <asp:Button ID="ButtonClear" runat="server" Text="CLR" CssClass="calculatorButton clear" OnClick="ButtonClear_Click" />
                 <asp:Button ID="ButtonRoot" runat="server" Text="√" CssClass="calculatorButton root" OnClick="SingleOperation_Click" />
+
+                <asp:Button ID="ButtonLBracked" runat="server" Text="(" CssClass="calculatorButton lbracket" OnClick="Bracket_Click" />
+                <asp:Button ID="ButtonRBracked" runat="server" Text=")" CssClass="calculatorButton rbracket" OnClick="Bracket_Click" />
+                <asp:Button ID="ButtonX" runat="server" Text="x" CssClass="calculatorButton x" OnClick="X_Click" />
 
                 <asp:Button ID="AdditionButton" runat="server" Text="+" CssClass="calculatorButton operation plus" OnClick="Operation_Click" />
                 <asp:Button ID="SubtractionButton" runat="server" Text="-" CssClass="calculatorButton operation minus" OnClick="Operation_Click" />

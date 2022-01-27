@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -12,41 +13,29 @@ namespace Calculator
 {
     public partial class _Default : Page
     {
-        const string connectionString = "Data Source=NET163\\SQLEXPRESS; Initial Catalog = calculatordb; User ID = admin; Password=123456; Trusted_Connection=False;";
         const string rootSymbol = "√";
-        const string dotSymbol = ".";
-        const string minusSymbol = "-";
-        const string rootSymbolDatabase = "^(1/2)";
-        const int calculatorAccuracy = 9;
+        const string rootSymbolBasic = "^(1/2)";
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            Expression e1 = new Expression("2x=4");
-            Label1.Text = e1.calculate().ToString();
+            string toSolve = "root(2, 4)";
+            Expression e1 = new Expression(toSolve);
+            DebugLabel.Text = e1.calculate().ToString();
+            
             if (!IsPostBack)
             {
                 DisplayTextBox.Text = string.Empty;
-                ViewState["number1"] = null;
-                ViewState["operation"] = null;
-                ViewState["clearOnNextNumber"] = false;
-                ViewState["number2Started"] = false;
-                ViewState["dotUsed"] = false;
-                ViewState["negUsed"] = false;
             }
         }
- 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void Number_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
-
-            if ((bool)ViewState["clearOnNextNumber"])
-            {
-                DisplayTextBox.Text = string.Empty;
-                ViewState["clearOnNextNumber"] = false;
-                ViewState["number2Started"] = true;
-                ViewState["dotUsed"] = false;
-                ViewState["negUsed"] = false;
-            }
             DisplayTextBox.Text += clickedButton.Text;
         }
 
@@ -54,73 +43,74 @@ namespace Calculator
         {
             Button clickedButton = (Button)sender;
 
-            if(ViewState["operation"] == null)
+            string text = DisplayTextBox.Text;
+
+            if (text.Length > 0)
             {
-                ViewState["number1"] = DisplayTextBox.Text;
-                ViewState["operation"] = clickedButton.Text;
-                ViewState["clearOnNextNumber"] = true;
-            }
-            else
-            {
-                if (!(bool)ViewState["number2Started"])
+                //Jeigu pirmas simbolis yra minusas ir daugiau simboliu nera nieko nedaryti
+                if (Convert.ToChar(clickedButton.Text) == '-' && text[text.Length - 1] == '-' && text.Length == 1)
                 {
-                    //Galima pakeisti operacija
-                    ViewState["operation"] = clickedButton.Text;
+                    return;
+                }
+
+                //Jei randamas --, simboliai pakeiciami i +
+                if (Convert.ToChar(clickedButton.Text) == '-' && text[text.Length - 1] == '-')
+                {
+                    DisplayTextBox.Text = text.Remove(text.Length - 1) + '+';
+                    return;
+                }
+
+                //Simboliu pakeitimas
+                if (text[text.Length - 1] == '+' || text[text.Length - 1] == '-' || text[text.Length - 1] == '*' || text[text.Length - 1] == '/')
+                {
+                    DisplayTextBox.Text = text.Remove(text.Length - 1) + clickedButton.Text;
                 }
                 else
                 {
-                    //Operacijos pakeisti nebegalima pradejus rasyti antra skaiciu
+                    DisplayTextBox.Text += clickedButton.Text;
+                }
+            }
+            else
+            {
+                //Pirmo minuso pridejimas
+                if (Convert.ToChar(clickedButton.Text) == '-')
+                {
+                    DisplayTextBox.Text += clickedButton.Text;
                 }
             }
         }
         protected void ButtonResult_Click(object sender, EventArgs e)
         {
-            double number1 = 0;
-            double number2 = 0;
-            char operation = ' ';
-            double result = 0;
-            string resultLine = string.Empty;
 
-            if(ViewState["number1"] != null && (bool)ViewState["number2Started"])
+            DisplayTextBox.Text = FormatExpression(DisplayTextBox.Text);
+
+            //Paprastos aritmetinės operacijos
+            if (!DisplayTextBox.Text.Contains("x"))
             {
-                number1 = Convert.ToDouble(ViewState["number1"]);
-                number2 = Convert.ToDouble(DisplayTextBox.Text);
-                operation = Convert.ToChar(ViewState["operation"]);
-
-                result = Calculate(number1, number2, operation);
-                resultLine = string.Format("{0}{1}{2}={3}", number1, operation, number2, result);
-
-                if (result.ToString().Contains(dotSymbol))
-                {
-                    ViewState["dotUsed"] = true;
-                }
-                if (result.ToString().Contains(minusSymbol))
-                {
-                    ViewState["minusUsed"] = true;
-                }
-
-                ViewState["operation"] = null;
-                ViewState["number2Started"] = false;
-                DisplayTextBox.Text = result.ToString();
-                InsertOperationToDatabase(resultLine);
+                Expression expression = new Expression(DisplayTextBox.Text);
+                DisplayTextBox.Text = expression.calculate().ToString();
             }
+            else
+            {
+                //Paprastos lygties pvz. [2x=2] sprendimas
+                string toSolve = string.Format("solve( {0}, x, {1}, {2} )", DisplayTextBox.Text, int.MinValue, int.MaxValue);
+                Expression expression = new Expression(toSolve);
+                DisplayTextBox.Text = expression.calculate().ToString();
+
+                //Su aibe sprendimas !!(reikia sugalvoti uzrasymo formata)
+            }
+            AlertLabel.Text = "";
         }
 
         protected void ButtonDot_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
 
-            if (DisplayTextBox.Text.Length != 0)
+            string text = DisplayTextBox.Text;
+
+            if (text[text.Length - 1] != '.')
             {
-                if (!(bool)ViewState["dotUsed"])
-                {
-                    DisplayTextBox.Text += clickedButton.Text;
-                    ViewState["dotUsed"] = true;
-                }
-                else
-                {
-                    //Negalima deti kablelio, niekas nevyksta
-                }
+                DisplayTextBox.Text += clickedButton.Text; ;
             }
         }
 
@@ -128,101 +118,42 @@ namespace Calculator
         {
             Button clickedButton = (Button)sender;
 
-            double result = 0;
-            string resultLine = string.Empty;
             if(clickedButton.Text == rootSymbol)
             {
-                //Suskaiciuoti sakni DABARTINIO skaiciaus
-                result = Math.Sqrt(Convert.ToDouble(DisplayTextBox.Text));
-                resultLine = string.Format("{0}{1}={2}", DisplayTextBox.Text, rootSymbolDatabase, result);
-
-                if (result.ToString().Contains(dotSymbol))
-                {
-                    ViewState["dotUsed"] = true;
-                }
-                if (result.ToString().Contains(minusSymbol))
-                {
-                    ViewState["minusUsed"] = true;
-                }
-                DisplayTextBox.Text = result.ToString();
-                InsertOperationToDatabase(resultLine);
+                DisplayTextBox.Text += rootSymbol;
             }
         }
 
         protected void ButtonClear_Click(object sender, EventArgs e)
         {
             DisplayTextBox.Text = string.Empty;
-            ViewState["number1"] = null;
-            ViewState["operation"] = null;
-            ViewState["clearOnNextNumber"] = false;
-            ViewState["number2Started"] = false;
-            ViewState["dotUsed"] = false;
-            ViewState["negUsed"] = false;
+            AlertLabel.Text = "";
         }
 
         protected void ButtonDelete_Click(object sender, EventArgs e)
         {
-            if(DisplayTextBox.Text.Length > 0)
+            if (DisplayTextBox.Text.Length > 0)
             {
-                if(DisplayTextBox.Text[DisplayTextBox.Text.Length - 1] == Convert.ToChar(dotSymbol))
-                {
-                    ViewState["dotUsed"] = false;
-                }
-                else if (DisplayTextBox.Text[DisplayTextBox.Text.Length - 1] == Convert.ToChar(minusSymbol))
-                {
-                    ViewState["negUsed"] = false;
-                }
-                else
-                {
-                    //Digit is removed
-                }
                 DisplayTextBox.Text = DisplayTextBox.Text.Remove(DisplayTextBox.Text.Length - 1, 1);
+                if (!DisplayTextBox.Text.Contains("x"))
+                    AlertLabel.Text = "";
             }
         }
 
-        protected void ButtonNegative_Click(object sender, EventArgs e)
+        protected void Bracket_Click(object sender, EventArgs e)
         {
-            if (!(bool)ViewState["negUsed"])
-            {
-                DisplayTextBox.Text = DisplayTextBox.Text.Insert(0, minusSymbol);
-                ViewState["negUsed"] = true;
-            }
-            else
-            {
-                DisplayTextBox.Text = DisplayTextBox.Text.Remove(0, 1);
-                ViewState["negUsed"] = false;
-            }
+            Button clickedButton = (Button)sender;
+
+            DisplayTextBox.Text += clickedButton.Text;
         }
 
-        /// <summary>
-        /// Atliekama viena iš keturių paprastų skaičiuotuvo operacijų
-        /// </summary>
-        /// <param name="number1">Pirmas skaičius</param>
-        /// <param name="number2">Antras skaičius</param>
-        /// <param name="operation">Operacija atlikimui</param>
-        /// <returns>Gautas skaičius atlikus veiksmą su skaičiais</returns>
-        double Calculate(double number1, double number2, char operation)
+        protected void X_Click(object sender, EventArgs e)
         {
-            double result = 0;
-            if (operation == '+')
-            {
-                result = number1 + number2;
-            }
-            else if (operation == '-')
-            {
-                result = number1 - number2;
-            }
-            else if (operation == '/')
-            {
-                result = number1 / number2;
-            }
-            else if (operation == '*')
-            {
-                result = number1 * number2;
-            }
+            Button clickedButton = (Button)sender;
 
-            ViewState["result"] = result;
-            return result;
+            AlertLabel.Text = "Equation format should be in format f(x) = 0. For example: 2x=4-2*x should be 2*x-4+2*x";
+
+            DisplayTextBox.Text += clickedButton.Text;
         }
 
         /// <summary>
@@ -232,12 +163,13 @@ namespace Calculator
         /// <returns>1 jei pavyksta pasiekti duomenų bazę, 0 jei ne</returns>
         int InsertOperationToDatabase(string line)
         {
-            SqlConnection cnn = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand(string.Format("INSERT Calculation (date, line) VALUES (CURRENT_TIMESTAMP, '{0}')", line), cnn);
-
+            SqlConnection cnn = new SqlConnection(ConfigurationManager.ConnectionStrings["Dbconnection"].ConnectionString);
             try
             {
                 cnn.Open();
+                SqlCommand cmd = new SqlCommand("Calculation_Insert", cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Line", SqlDbType.VarChar).Value = line;
                 cmd.ExecuteNonQuery();
                 cnn.Close();
 
@@ -245,8 +177,41 @@ namespace Calculator
             }
             catch (Exception ex)
             {
+                ErrorLabel.Text = ex.ToString();
                 return 0; //Error accessing database
             }
+        }
+
+        /// <summary>
+        /// Metodas skirtas sutvarkyti uzdavini i isprendziama. Dabar tik saknies sutvarkymo algoritmas
+        /// </summary>
+        /// <param name="expression">Salyga</param>
+        /// <returns>Sutvarkyta salyga</returns>
+        string FormatExpression(string expression)
+        {
+            int rootIndex = -1;
+            for (int i = 0; i < expression.Length ; i++)
+            {
+                if(rootIndex != -1)
+                {
+                    if (char.IsDigit(expression[i]))
+                    {
+                        if (expression.Length == i + 1 || !char.IsDigit(expression[i + 1]))
+                        {
+                            expression = expression.Remove(rootIndex, 1);
+                            expression = expression.Insert(i, rootSymbolBasic);
+                            rootIndex = -1;
+                        }
+                    }
+                }
+
+                if(expression[i] == Convert.ToChar(rootSymbol))
+                {
+                    rootIndex = i;
+                }
+            }
+
+            return expression;
         }
     }
 }
