@@ -1,0 +1,154 @@
+﻿.calculatorButton {
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 20pt;
+    transition: all 0.6s;
+    cursor: pointer;
+    max-width: 4em;
+    min-width: 4em;
+    white-space: nowrap;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.calculator {
+    display: grid;
+    background: rgb(223, 223, 223);
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 20px;
+    gap: 5px;
+    width: 500px;
+    height: 450px;
+    grid-template-areas:
+        "text text text text"
+        "clear del root div"
+        "seven eight nine multi"
+        "four five six minus"
+        "one two three plus"
+        "neg zero dot result";
+}
+
+.display {
+    font-size: 20pt;
+    border: 1px solid black;
+    border-radius: 2px;
+    pointer-events: none;
+    text-align: right;
+    padding: 2px;
+}
+
+.cellSpace{
+    padding-right: 20px;
+}
+
+.div{
+    grid-area: div;
+}
+
+.multi{
+    grid-area: multi;
+}
+
+.minus{
+    grid-area: minus;
+}
+
+.plus{
+    grid-area: plus;
+}
+
+.result{
+    grid-area: result;
+}
+
+.dot{
+    grid-area: dot;
+}
+
+.operation {
+    background: rgb(190, 73, 73);
+}
+
+.result {
+    background: rgb(49, 82, 1);
+}
+
+.zero{
+    grid-area: zero;
+    margin: initial;
+    max-width: none;
+}
+
+.one{
+    grid-area: one;
+}
+
+.two {
+    grid-area: two;
+}
+
+.three {
+    grid-area: three;
+}
+
+.four {
+    grid-area: four;
+}
+
+.five {
+    grid-area: five;
+}
+
+.six {
+    grid-area: six;
+}
+
+.seven {
+    grid-area: seven;
+}
+
+.eight {
+    grid-area: eight;
+}
+
+.nine {
+    grid-area: nine;
+}
+
+.text{
+    grid-area: text;
+}
+
+.neg{
+    grid-area: neg;
+}
+
+.clear{
+    grid-area: clear;
+}
+
+.del{
+    grid-area: del;
+}
+
+.root{
+    grid-area: root;
+}
