@@ -6,6 +6,7 @@
     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
         <ContentTemplate>
             <asp:Label ID="errorLabel" ForeColor="Red" runat="server" Text=""></asp:Label>
+            <asp:Label ID="Label1" ForeColor="Red" runat="server" Text=""></asp:Label>
             <div>
                 <asp:Label ID="FromDateTime" runat="server" Text="From: "></asp:Label><asp:TextBox ID="FromDateTimePicker" runat="server" TextMode="DateTimeLocal"></asp:TextBox>
                 <asp:Label ID="ToDateTime" runat="server" Text="To: "></asp:Label><asp:TextBox ID="ToDateTimePicker" runat="server" TextMode="DateTimeLocal"></asp:TextBox>

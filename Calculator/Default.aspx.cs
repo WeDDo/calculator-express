@@ -97,7 +97,7 @@ namespace Calculator
                 Expression expression = new Expression(toSolve);
                 DisplayTextBox.Text = expression.calculate().ToString();
 
-                //Su aibe sprendimas !!(reikia sugalvoti uzrasymo formata)
+                //Su aibe sprendimas !!(reikia sugalvoti uzrasymo formata) [1. 2. 4. 6] formatas
             }
             AlertLabel.Text = "";
         }

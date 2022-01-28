@@ -13,7 +13,7 @@ namespace Calculator
     public partial class About : Page
     {
         protected DataTable fullDataTable;
-        protected DataTable searchDataTable;
+        const string databaseDateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -21,19 +21,13 @@ namespace Calculator
             {
                 ViewState["searchActive"] = false;
                 fullDataTable = new DataTable();
-                BindOperationHistoryData(fullDataTable);
-                ViewState["fullDataTable"] = fullDataTable;
-                ViewState["searchActive"] = false;
-                CalculationHistoryGridView.DataSource = fullDataTable;
-                CalculationHistoryGridView.DataBind();
+                SelectCalculations(fullDataTable);
             }
         }
 
         protected void SearchButton_Click(object sender, EventArgs e)
         {
             ViewState["searchActive"] = true;
-            fullDataTable = (DataTable)ViewState["fullDataTable"];
-            searchDataTable = fullDataTable.Copy();
 
             if (FromDateTimePicker.Text != string.Empty && ToDateTimePicker.Text != string.Empty)
             {
@@ -42,26 +36,13 @@ namespace Calculator
                 DateTime fromDateTime = Convert.ToDateTime(FromDateTimePicker.Text);
                 DateTime toDateTime = Convert.ToDateTime(ToDateTimePicker.Text);
 
-                if(DateTime.Compare(fromDateTime, toDateTime) < 0)
+                if (DateTime.Compare(fromDateTime, toDateTime) < 0)
                 {
-                    for (int i = searchDataTable.Rows.Count - 1; i >= 0; i--)
-                    {
-                        DateTime calculationRecordDateTime = Convert.ToDateTime(searchDataTable.Rows[i].ItemArray[1].ToString());
-                        
-                        if (DateTime.Compare(calculationRecordDateTime, fromDateTime) > 0 && DateTime.Compare(calculationRecordDateTime, toDateTime) < 0)
-                        {
-                            //Telpa i filtravimo rezius
-                        }
-                        else
-                        {
-                            searchDataTable.Rows.RemoveAt(i);
-                        }
-                    }
-                    searchDataTable.AcceptChanges();
+                    DataTable searchDataTable = GetSearchDataTable(fromDateTime, toDateTime);
                     ViewState["searchDataTable"] = searchDataTable;
-                    CalculationHistoryGridView.DataSource = (DataTable)ViewState["searchDataTable"];
+                    CalculationHistoryGridView.DataSource = searchDataTable;
                     CalculationHistoryGridView.DataBind();
-                    errorLabel.Text = searchDataTable.Rows.Count.ToString();
+                    CalculationHistoryGridView.PageIndex = 1;
                 }
                 else
                 {
@@ -77,15 +58,15 @@ namespace Calculator
         protected void ClearSearchButton_Click(object sender, EventArgs e)
         {
             ViewState["searchActive"] = false;
-            errorLabel.Text = string.Empty;
 
+            errorLabel.Text = string.Empty;
+            //!!FIX THIS TO SAVE IT IN ViewState to stop it from fetching data from database every single clear (Trello)
             fullDataTable = new DataTable();
-            BindOperationHistoryData(fullDataTable);
-            CalculationHistoryGridView.DataSource = fullDataTable;
-            CalculationHistoryGridView.DataBind();
+            SelectCalculations(fullDataTable);
+            CalculationHistoryGridView.PageIndex = 1;
         }
 
-        int BindOperationHistoryData(DataTable dt)
+        bool SelectCalculations(DataTable dt)
         {
             SqlConnection cnn = new SqlConnection(ConfigurationManager.ConnectionStrings["Dbconnection"].ConnectionString);
 
@@ -116,48 +97,87 @@ namespace Calculator
                 cnn.Close();
                 dt.AcceptChanges();
 
-                return 1; //Success
+                ViewState["fullDataTable"] = fullDataTable;
+                CalculationHistoryGridView.DataSource = fullDataTable;
+                CalculationHistoryGridView.DataBind();
+
+                return true; //Success
             }
             catch (Exception ex)
             {
                 errorLabel.Text = "Couldn't connect to the database!";
-                return 0; //Error accessing database
+                return false; //Error accessing database
             }
+        }
+
+        bool SelectCalculationByDateTime(DateTime fromDateTime, DateTime toDateTime, DataTable dataTable)
+        {
+            SqlConnection cnn = new SqlConnection(ConfigurationManager.ConnectionStrings["Dbconnection"].ConnectionString);
+
+            DataRow dr = null;
+            dataTable.Columns.Add("Id");
+            dataTable.Columns.Add("Date");
+            dataTable.Columns.Add("Expression");
+
+            try
+            {
+                cnn.Open();
+                SqlCommand cmd = new SqlCommand("Calculation_Search_ByDateTime", cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@From_DateTime", SqlDbType.DateTime).Value = fromDateTime.ToString(databaseDateTimeFormat);
+                cmd.Parameters.Add("@To_DateTime", SqlDbType.DateTime).Value = toDateTime.ToString(databaseDateTimeFormat);
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string id = reader["id"].ToString();
+                    string date = reader["date"].ToString();
+                    string line = reader["line"].ToString();
+
+                    dr = dataTable.NewRow();
+                    dr["Id"] = id;
+                    dr["Date"] = date;
+                    dr["Expression"] = line;
+                    dataTable.Rows.Add(dr);
+                }
+                cnn.Close();
+                dataTable.AcceptChanges();
+
+                return true; //Success
+            }
+            catch (Exception ex)
+            {
+                //Label1.Text += ex.ToString();
+                return false; //Error accessing database
+            }
+        }
+
+        DataTable GetSearchDataTable(DateTime fromDateTime, DateTime toDateTime)
+        {
+            DataTable searchDataTable = new DataTable();
+            SelectCalculationByDateTime(fromDateTime, toDateTime, searchDataTable);
+            return searchDataTable;
         }
 
         protected void CalculationHistoryGridView_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
             if ((bool)ViewState["searchActive"])
             {
-                errorLabel.Text += "SEARCH";
-                //SearchButton_Click(null, null);
+                CalculationHistoryGridView.PageIndex = e.NewPageIndex;
+                DataTable searchDataTable = (DataTable)ViewState["searchDataTable"];
+                CalculationHistoryGridView.DataSource = searchDataTable;
+                CalculationHistoryGridView.DataBind();
+                /*
                 CalculationHistoryGridView.PageIndex = e.NewPageIndex;
                 CalculationHistoryGridView.DataSource = (DataTable)ViewState["searchDataTable"];
                 CalculationHistoryGridView.DataBind();
+                */
             }
             else
             {
-                errorLabel.Text += "FULL";
                 CalculationHistoryGridView.PageIndex = e.NewPageIndex;
                 CalculationHistoryGridView.DataSource = (DataTable)ViewState["fullDataTable"];
                 CalculationHistoryGridView.DataBind();
             }
-
-            /*
-            if (searchActive)
-            {
-                SearchButton_Click(null, null);
-                CalculationHistoryGridView.DataSource = searchDataTable;
-            }
-            else
-            {
-                BindOperationHistoryData(fullDataTable);
-                CalculationHistoryGridView.DataSource = fullDataTable;
-            }
-            CalculationHistoryGridView.PageIndex = e.NewPageIndex;
-            CalculationHistoryGridView.DataBind();
-            */
-
         }
     }
 }
