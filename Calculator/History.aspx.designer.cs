@@ -15,6 +15,15 @@ namespace Calculator
     {
 
         /// <summary>
+        /// UpdatePanel1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel UpdatePanel1;
+
+        /// <summary>
         /// errorLabel control.
         /// </summary>
         /// <remarks>
@@ -78,21 +87,12 @@ namespace Calculator
         protected global::System.Web.UI.WebControls.Button ClearSearchButton;
 
         /// <summary>
-        /// UpdatePanel1 control.
+        /// CalculationHistoryGridView control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel1;
-
-        /// <summary>
-        /// CalculationHistoryTable control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Table CalculationHistoryTable;
+        protected global::System.Web.UI.WebControls.GridView CalculationHistoryGridView;
     }
 }

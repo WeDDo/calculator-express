@@ -12,16 +12,30 @@ namespace Calculator
 {
     public partial class About : Page
     {
-        const string connectionString = "Data Source=NET163\\SQLEXPRESS; Initial Catalog = calculatordb; User ID = admin; Password=123456; Trusted_Connection=False;";
-        
+        protected DataTable fullDataTable;
+        protected DataTable searchDataTable;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            GetOperationsFromDatabase().ToString();
+            if (!IsPostBack)
+            {
+                ViewState["searchActive"] = false;
+                fullDataTable = new DataTable();
+                BindOperationHistoryData(fullDataTable);
+                ViewState["fullDataTable"] = fullDataTable;
+                ViewState["searchActive"] = false;
+                CalculationHistoryGridView.DataSource = fullDataTable;
+                CalculationHistoryGridView.DataBind();
+            }
         }
 
         protected void SearchButton_Click(object sender, EventArgs e)
         {
-            if(FromDateTimePicker.Text != string.Empty && ToDateTimePicker.Text != string.Empty)
+            ViewState["searchActive"] = true;
+            fullDataTable = (DataTable)ViewState["fullDataTable"];
+            searchDataTable = fullDataTable.Copy();
+
+            if (FromDateTimePicker.Text != string.Empty && ToDateTimePicker.Text != string.Empty)
             {
                 errorLabel.Text = string.Empty;
 
@@ -30,19 +44,24 @@ namespace Calculator
 
                 if(DateTime.Compare(fromDateTime, toDateTime) < 0)
                 {
-                    for (int i = CalculationHistoryTable.Rows.Count - 1; i >= 1; i--)
+                    for (int i = searchDataTable.Rows.Count - 1; i >= 0; i--)
                     {
-                        DateTime calculationRecordDateTime = Convert.ToDateTime(CalculationHistoryTable.Rows[i].Cells[1].Text);
-
+                        DateTime calculationRecordDateTime = Convert.ToDateTime(searchDataTable.Rows[i].ItemArray[1].ToString());
+                        
                         if (DateTime.Compare(calculationRecordDateTime, fromDateTime) > 0 && DateTime.Compare(calculationRecordDateTime, toDateTime) < 0)
                         {
                             //Telpa i filtravimo rezius
                         }
                         else
                         {
-                            CalculationHistoryTable.Rows.Remove(CalculationHistoryTable.Rows[i]);
+                            searchDataTable.Rows.RemoveAt(i);
                         }
                     }
+                    searchDataTable.AcceptChanges();
+                    ViewState["searchDataTable"] = searchDataTable;
+                    CalculationHistoryGridView.DataSource = (DataTable)ViewState["searchDataTable"];
+                    CalculationHistoryGridView.DataBind();
+                    errorLabel.Text = searchDataTable.Rows.Count.ToString();
                 }
                 else
                 {
@@ -57,17 +76,23 @@ namespace Calculator
 
         protected void ClearSearchButton_Click(object sender, EventArgs e)
         {
+            ViewState["searchActive"] = false;
             errorLabel.Text = string.Empty;
 
-            while (CalculationHistoryTable.Rows.Count > 1)
-                CalculationHistoryTable.Rows.RemoveAt(1);
-
-            GetOperationsFromDatabase();
+            fullDataTable = new DataTable();
+            BindOperationHistoryData(fullDataTable);
+            CalculationHistoryGridView.DataSource = fullDataTable;
+            CalculationHistoryGridView.DataBind();
         }
 
-        int GetOperationsFromDatabase()
+        int BindOperationHistoryData(DataTable dt)
         {
             SqlConnection cnn = new SqlConnection(ConfigurationManager.ConnectionStrings["Dbconnection"].ConnectionString);
+
+            DataRow dr = null;
+            dt.Columns.Add("Id");
+            dt.Columns.Add("Date");
+            dt.Columns.Add("Expression");
 
             try
             {
@@ -82,19 +107,14 @@ namespace Calculator
                     string date = reader["date"].ToString();
                     string line = reader["line"].ToString();
 
-                    TableRow row = new TableRow();
-                    TableCell cell1 = new TableCell();
-                    TableCell cell2 = new TableCell();
-                    TableCell cell3 = new TableCell();
-
-                    cell1.Text = id;
-                    cell2.Text = date;
-                    cell3.Text = line;
-
-                    row.Cells.AddRange(new TableCell[] { cell1, cell2, cell3 });
-                    CalculationHistoryTable.Rows.Add(row);
+                    dr = dt.NewRow();
+                    dr["Id"] = id;
+                    dr["Date"] = date;
+                    dr["Expression"] = line;
+                    dt.Rows.Add(dr);
                 }
                 cnn.Close();
+                dt.AcceptChanges();
 
                 return 1; //Success
             }
@@ -103,6 +123,41 @@ namespace Calculator
                 errorLabel.Text = "Couldn't connect to the database!";
                 return 0; //Error accessing database
             }
+        }
+
+        protected void CalculationHistoryGridView_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            if ((bool)ViewState["searchActive"])
+            {
+                errorLabel.Text += "SEARCH";
+                //SearchButton_Click(null, null);
+                CalculationHistoryGridView.PageIndex = e.NewPageIndex;
+                CalculationHistoryGridView.DataSource = (DataTable)ViewState["searchDataTable"];
+                CalculationHistoryGridView.DataBind();
+            }
+            else
+            {
+                errorLabel.Text += "FULL";
+                CalculationHistoryGridView.PageIndex = e.NewPageIndex;
+                CalculationHistoryGridView.DataSource = (DataTable)ViewState["fullDataTable"];
+                CalculationHistoryGridView.DataBind();
+            }
+
+            /*
+            if (searchActive)
+            {
+                SearchButton_Click(null, null);
+                CalculationHistoryGridView.DataSource = searchDataTable;
+            }
+            else
+            {
+                BindOperationHistoryData(fullDataTable);
+                CalculationHistoryGridView.DataSource = fullDataTable;
+            }
+            CalculationHistoryGridView.PageIndex = e.NewPageIndex;
+            CalculationHistoryGridView.DataBind();
+            */
+
         }
     }
 }
