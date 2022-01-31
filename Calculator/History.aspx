@@ -3,10 +3,10 @@
 <%@ Register Assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI.DataVisualization.Charting" TagPrefix="asp" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
-    <h2><%: Title %></h2>
-    <h3>History of your calculations:</h3>
     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
         <ContentTemplate>
+            <h2><%: Title %></h2>
+            <h3>History of your calculations:</h3>
             <asp:Label ID="errorLabel" ForeColor="Red" runat="server" Text=""></asp:Label>
             <asp:Label ID="Label1" ForeColor="Red" runat="server" Text=""></asp:Label>
             <div style="width: 100%; margin: 0 auto;">

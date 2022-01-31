@@ -19,14 +19,6 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
-body {
-    
-}
-
-button:hover {
-    transform: scale(1.05);
-}
-
 .calculator {
     display: grid;
     background: rgb(223, 223, 223);
@@ -52,7 +44,6 @@ button:hover {
     font-size: 20pt;
     border: 1px solid black;
     border-radius: 2px;
-    pointer-events: none;
     text-align: right;
     padding: 2px;
 }

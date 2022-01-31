@@ -212,7 +212,7 @@ namespace Calculator
             {
                 if(rootIndex != -1)
                 {
-                    if (char.IsDigit(expression[i]))
+                    if (char.IsDigit(expression[i]) || expression[i] == 'x')
                     {
                         if (expression.Length == i + 1 || !char.IsDigit(expression[i + 1]))
                         {

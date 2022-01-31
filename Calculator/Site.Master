@@ -15,6 +15,7 @@
     <webopt:bundlereference runat="server" path="~/Content/css" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <link href="Content/style.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" lang="javascript" src="Scripts/CalculatorScripts.js" ></script>
 
 </head>
 <body>
@@ -60,12 +61,7 @@
         <div class="container body-content">
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
             </asp:ContentPlaceHolder>
-            <hr />
-            <footer>
-                <p>&copy; <%: DateTime.Now.Year %> - CalculatorExpress</p>
-            </footer>
         </div>
-
     </form>
 </body>
 </html>

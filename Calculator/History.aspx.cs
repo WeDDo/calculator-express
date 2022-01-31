@@ -42,8 +42,8 @@ namespace Calculator
                     DataTable searchDataTable = GetSearchDataTable(fromDateTime, toDateTime);
                     ViewState["searchDataTable"] = searchDataTable;
                     CalculationHistoryGridView.DataSource = searchDataTable;
+                    CalculationHistoryGridView.PageIndex = 0;
                     CalculationHistoryGridView.DataBind();
-                    CalculationHistoryGridView.PageIndex = 1;
                 }
                 else
                 {
@@ -62,8 +62,8 @@ namespace Calculator
             errorLabel.Text = string.Empty;
 
             CalculationHistoryGridView.DataSource = (DataTable)ViewState["currentMonthCalculationDataTable"];
+            CalculationHistoryGridView.PageIndex = 0;
             CalculationHistoryGridView.DataBind();
-            CalculationHistoryGridView.PageIndex = 1;
         }
 
         bool SelectCalculations(DataTable dt)
@@ -166,8 +166,8 @@ namespace Calculator
             SelectCalculationByDateTime(firstDayOfMonth, lastDayOfMonth, dataTable);
             ViewState["currentMonthCalculationDataTable"] = dataTable;
             CalculationHistoryGridView.DataSource = dataTable;
+            CalculationHistoryGridView.PageIndex = 0;
             CalculationHistoryGridView.DataBind();
-            CalculationHistoryGridView.PageIndex = 1;
         }
 
         protected void CalculationHistoryGridView_PageIndexChanging(object sender, GridViewPageEventArgs e)
