@@ -33,13 +33,22 @@ namespace Calculator
         protected global::System.Web.UI.WebControls.Label ErrorLabel;
 
         /// <summary>
-        /// AlertLabel control.
+        /// Alert0Label control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label AlertLabel;
+        protected global::System.Web.UI.WebControls.Label Alert0Label;
+
+        /// <summary>
+        /// Alert1Label control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Alert1Label;
 
         /// <summary>
         /// DebugLabel control.
@@ -150,15 +159,6 @@ namespace Calculator
         protected global::System.Web.UI.WebControls.Button Button0;
 
         /// <summary>
-        /// ButtonNegative control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button ButtonNegative;
-
-        /// <summary>
         /// ButtonDot control.
         /// </summary>
         /// <remarks>
@@ -265,5 +265,50 @@ namespace Calculator
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button MultiplicationButton;
+
+        /// <summary>
+        /// ButtonLIntervalBracket control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ButtonLIntervalBracket;
+
+        /// <summary>
+        /// ButtonRLntervalBracket control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ButtonRLntervalBracket;
+
+        /// <summary>
+        /// ButtonInterval control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ButtonInterval;
+
+        /// <summary>
+        /// IntervalSeperator control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button IntervalSeperator;
+
+        /// <summary>
+        /// SolutionChart control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.DataVisualization.Charting.Chart SolutionChart;
     }
 }

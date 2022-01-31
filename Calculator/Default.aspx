@@ -1,10 +1,13 @@
 ﻿<%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Calculator._Default" EnableViewState="true" %>
 
+<%@ Register Assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI.DataVisualization.Charting" TagPrefix="asp" %>
+
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
         <ContentTemplate>
             <asp:Label ID="ErrorLabel" runat="server" Text=""></asp:Label>
-            <asp:Label ID="AlertLabel" runat="server" Text=""></asp:Label>
+            <asp:Label ID="Alert0Label" runat="server" Text=""></asp:Label>
+            <asp:Label ID="Alert1Label" runat="server" Text=""></asp:Label>
             <asp:Label ID="DebugLabel" runat="server" Text=""></asp:Label>
             <div class="calculator">
                 <asp:TextBox ID="DisplayTextBox" CssClass="display text" runat="server"></asp:TextBox>
@@ -22,8 +25,6 @@
                 <asp:Button ID="Button9" runat="server" Text="9" CssClass="calculatorButton nine" OnClick="Number_Click" />
 
                 <asp:Button ID="Button0" runat="server" Text="0" CssClass="calculatorButton zero" OnClick="Number_Click" />
-
-                <asp:Button ID="ButtonNegative" runat="server" Text="+/-" CssClass="calculatorButton neg" />
                 <asp:Button ID="ButtonDot" runat="server" Text="." CssClass="calculatorButton dot" OnClick="ButtonDot_Click" />
                 <asp:Button ID="ButtonResult" runat="server" Text="=" CssClass="calculatorButton result" OnClick="ButtonResult_Click" />
 
@@ -39,6 +40,20 @@
                 <asp:Button ID="SubtractionButton" runat="server" Text="-" CssClass="calculatorButton operation minus" OnClick="Operation_Click" />
                 <asp:Button ID="DivisionButoon" runat="server" Text="/" CssClass="calculatorButton operation div" OnClick="Operation_Click" />
                 <asp:Button ID="MultiplicationButton" runat="server" Text="*" CssClass="calculatorButton operation multi" OnClick="Operation_Click" />
+
+                <asp:Button ID="ButtonLIntervalBracket" runat="server" Text="[" CssClass="calculatorButton operation libracket" OnClick="Bracket_Click" />
+                <asp:Button ID="ButtonRLntervalBracket" runat="server" Text="]" CssClass="calculatorButton operation ribracket" OnClick="Bracket_Click" />
+                <asp:Button ID="ButtonInterval" runat="server" Text="interval" CssClass="calculatorButton operation interval" OnClick="Bracket_Click" />
+                <asp:Button ID="IntervalSeperator" runat="server" Text=";" CssClass="calculatorButton operation intervalSeperator" OnClick="Bracket_Click" /> 
+            </div>
+            <div>
+                <asp:Chart ID="SolutionChart" CssClass="margin-mid" runat="server" ImageType="Png">
+                    <Series>
+                    </Series>
+                    <ChartAreas>
+                        <asp:ChartArea Name="ChartArea1"></asp:ChartArea>
+                    </ChartAreas>
+                </asp:Chart>
             </div>
         </ContentTemplate>
     </asp:UpdatePanel>

@@ -21,7 +21,9 @@ namespace Calculator
             {
                 ViewState["searchActive"] = false;
                 fullDataTable = new DataTable();
+                ViewState["fullDataTable"] = fullDataTable;
                 SelectCalculations(fullDataTable);
+                //GetInitialCalculationsList();
             }
         }
 
@@ -58,11 +60,10 @@ namespace Calculator
         protected void ClearSearchButton_Click(object sender, EventArgs e)
         {
             ViewState["searchActive"] = false;
-
             errorLabel.Text = string.Empty;
-            //!!FIX THIS TO SAVE IT IN ViewState to stop it from fetching data from database every single clear (Trello)
-            fullDataTable = new DataTable();
-            SelectCalculations(fullDataTable);
+
+            CalculationHistoryGridView.DataSource = (DataTable)ViewState["fullDataTable"];
+            CalculationHistoryGridView.DataBind();
             CalculationHistoryGridView.PageIndex = 1;
         }
 
@@ -158,6 +159,17 @@ namespace Calculator
             return searchDataTable;
         }
 
+        void GetInitialCalculationsList()
+        {
+            DateTime firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddSeconds(-1);
+            DataTable dataTable = new DataTable();
+            SelectCalculationByDateTime(firstDayOfMonth, lastDayOfMonth, dataTable);
+            CalculationHistoryGridView.DataSource = dataTable;
+            CalculationHistoryGridView.DataBind();
+            CalculationHistoryGridView.PageIndex = 1;
+        }
+
         protected void CalculationHistoryGridView_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
             if ((bool)ViewState["searchActive"])
@@ -166,11 +178,6 @@ namespace Calculator
                 DataTable searchDataTable = (DataTable)ViewState["searchDataTable"];
                 CalculationHistoryGridView.DataSource = searchDataTable;
                 CalculationHistoryGridView.DataBind();
-                /*
-                CalculationHistoryGridView.PageIndex = e.NewPageIndex;
-                CalculationHistoryGridView.DataSource = (DataTable)ViewState["searchDataTable"];
-                CalculationHistoryGridView.DataBind();
-                */
             }
             else
             {

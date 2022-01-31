@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using org.mariuszgromada.math.mxparser;
+using System.Web.UI.DataVisualization.Charting;
 
 namespace Calculator
 {
@@ -18,10 +19,6 @@ namespace Calculator
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            string toSolve = "root(2, 4)";
-            Expression e1 = new Expression(toSolve);
-            DebugLabel.Text = e1.calculate().ToString();
-            
             if (!IsPostBack)
             {
                 DisplayTextBox.Text = string.Empty;
@@ -81,7 +78,6 @@ namespace Calculator
         }
         protected void ButtonResult_Click(object sender, EventArgs e)
         {
-
             DisplayTextBox.Text = FormatExpression(DisplayTextBox.Text);
 
             //Paprastos aritmetinės operacijos
@@ -89,17 +85,39 @@ namespace Calculator
             {
                 Expression expression = new Expression(DisplayTextBox.Text);
                 DisplayTextBox.Text = expression.calculate().ToString();
+
+                string insertLine = string.Format("{0}={1}", expression.getExpressionString(), expression.calculate());
+                InsertOperationToDatabase(insertLine);
             }
             else
             {
-                //Paprastos lygties pvz. [2x=2] sprendimas
-                string toSolve = string.Format("solve( {0}, x, {1}, {2} )", DisplayTextBox.Text, int.MinValue, int.MaxValue);
-                Expression expression = new Expression(toSolve);
-                DisplayTextBox.Text = expression.calculate().ToString();
-
-                //Su aibe sprendimas !!(reikia sugalvoti uzrasymo formata) [1. 2. 4. 6] formatas
+                if (DisplayTextBox.Text.Contains("interval"))
+                {
+                    string[] values = DisplayTextBox.Text.Split(new string[] { "interval" }, StringSplitOptions.RemoveEmptyEntries);
+                    string equation = FormatExpression(values[0]);
+                    double[] xValues = Array.ConvertAll(values[1].Trim('[').Trim(']').Split(';'), s => double.Parse(s));
+                    SolveEquationWithInterval(equation, xValues);
+                }
+                else
+                {
+                    //Paprastos lygties pvz. [2x=2] sprendimas
+                    string toSolve = string.Format("solve( {0}, x, {1}, {2} )", DisplayTextBox.Text, int.MinValue, int.MaxValue);
+                    Expression expression = new Expression(toSolve);
+                    DisplayTextBox.Text = expression.calculate().ToString();
+                    string insertLine = string.Format("{0}={1}", expression.getExpressionString(), expression.calculate());
+                    InsertOperationToDatabase(insertLine);
+                }
             }
-            AlertLabel.Text = "";
+            DisplayTextBox.Text = DisplayTextBox.Text.Replace(",", ".");
+            if (DisplayTextBox.Text.Contains("NaN"))
+            {
+                Alert0Label.Text = "Entered value could not be evaluated! Make sure it is in a correct format.";
+            }
+            else
+            {
+                Alert0Label.Text = string.Empty;
+            }
+            
         }
 
         protected void ButtonDot_Click(object sender, EventArgs e)
@@ -127,7 +145,7 @@ namespace Calculator
         protected void ButtonClear_Click(object sender, EventArgs e)
         {
             DisplayTextBox.Text = string.Empty;
-            AlertLabel.Text = "";
+            Alert0Label.Text = "";
         }
 
         protected void ButtonDelete_Click(object sender, EventArgs e)
@@ -136,7 +154,7 @@ namespace Calculator
             {
                 DisplayTextBox.Text = DisplayTextBox.Text.Remove(DisplayTextBox.Text.Length - 1, 1);
                 if (!DisplayTextBox.Text.Contains("x"))
-                    AlertLabel.Text = "";
+                    Alert0Label.Text = "";
             }
         }
 
@@ -151,7 +169,7 @@ namespace Calculator
         {
             Button clickedButton = (Button)sender;
 
-            AlertLabel.Text = "Equation format should be in format f(x) = 0. For example: 2x=4-2*x should be 2*x-4+2*x";
+            Alert0Label.Text = "Equation format should be in format f(x) = 0. For example: 2x=4-2*x should be 2*x-4+2*x. <br /> If you want to draw a graph with given interval values it should look similiar to this 2*x+4interval[1;2;3;4;5].";
 
             DisplayTextBox.Text += clickedButton.Text;
         }
@@ -212,6 +230,35 @@ namespace Calculator
             }
 
             return expression;
+        }
+
+        void SolveEquationWithInterval(string equation, double[] xValues)
+        {
+            double[] yValues = new double[xValues.Length];
+            Argument x = new Argument("x");
+            Argument y = new Argument(string.Format("y = {0}", equation), x);
+
+            SolutionChart.Titles.Add(string.Format("Solution graph for {0}", equation));
+            SolutionChart.ChartAreas[0].AxisX.Title = "X";
+            SolutionChart.ChartAreas[0].AxisY.Title = "Y";
+
+            Series series = new Series("EquationSolve");
+            series.MarkerStyle = MarkerStyle.Circle;
+            series.ChartType = SeriesChartType.Spline;
+
+            for (int i = 0; i < xValues.Length; i++)
+            {
+                double xValue = xValues[i];
+                x.setArgumentValue(xValue);
+                DebugLabel.Text += (string.Format("{0}={1}", y.getArgumentName(), y.getArgumentValue()));
+                yValues[i] = y.getArgumentValue();
+            }
+
+            series.Points.DataBindXY(xValues, yValues);
+            SolutionChart.Series.Add(series);
+
+            string insertLine = string.Format("{0}={1} when x [{2}]", y.getArgumentExpressionString(), string.Join(", ", yValues), string.Join(", ", xValues));
+            InsertOperationToDatabase(insertLine);
         }
     }
 }

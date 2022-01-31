@@ -39,12 +39,13 @@ button:hover {
     height: 450px;
     grid-template-areas:
         "text text text text"
-        "lbracket rbracket x empty"
-        "clear del root div"
-        "seven eight nine multi"
-        "four five six minus"
-        "one two three plus"
-        "neg zero dot result";
+        "libracket ribracket interval intervalSeperator"
+        "lbracket rbracket x div"
+        "clear del root multi"
+        "seven eight nine minus"
+        "four five six plus"
+        "one two three result"
+        "zero zero dot result";
 }
 
 .display {
@@ -54,6 +55,31 @@ button:hover {
     pointer-events: none;
     text-align: right;
     padding: 2px;
+}
+
+.historyTable tr td {
+    padding: 5px;
+}
+
+.margin-mid{
+    display: block;
+    margin: 0 auto;
+}
+
+.libracket {
+    grid-area: libracket;
+}
+
+.ribracket {
+    grid-area: ribracket;
+}
+
+.interval {
+    grid-area: interval;
+}
+
+.intervalSeperator {
+    grid-area: intervalSeperator;
 }
 
 .lbracket{
