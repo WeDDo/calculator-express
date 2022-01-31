@@ -21,9 +21,8 @@ namespace Calculator
             {
                 ViewState["searchActive"] = false;
                 fullDataTable = new DataTable();
-                ViewState["fullDataTable"] = fullDataTable;
-                SelectCalculations(fullDataTable);
-                //GetInitialCalculationsList();
+                //SelectCalculations(fullDataTable);
+                GetInitialCalculationsList();
             }
         }
 
@@ -62,7 +61,7 @@ namespace Calculator
             ViewState["searchActive"] = false;
             errorLabel.Text = string.Empty;
 
-            CalculationHistoryGridView.DataSource = (DataTable)ViewState["fullDataTable"];
+            CalculationHistoryGridView.DataSource = (DataTable)ViewState["currentMonthCalculationDataTable"];
             CalculationHistoryGridView.DataBind();
             CalculationHistoryGridView.PageIndex = 1;
         }
@@ -165,6 +164,7 @@ namespace Calculator
             DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddSeconds(-1);
             DataTable dataTable = new DataTable();
             SelectCalculationByDateTime(firstDayOfMonth, lastDayOfMonth, dataTable);
+            ViewState["currentMonthCalculationDataTable"] = dataTable;
             CalculationHistoryGridView.DataSource = dataTable;
             CalculationHistoryGridView.DataBind();
             CalculationHistoryGridView.PageIndex = 1;
@@ -182,7 +182,7 @@ namespace Calculator
             else
             {
                 CalculationHistoryGridView.PageIndex = e.NewPageIndex;
-                CalculationHistoryGridView.DataSource = (DataTable)ViewState["fullDataTable"];
+                CalculationHistoryGridView.DataSource = (DataTable)ViewState["currentMonthCalculationDataTable"];
                 CalculationHistoryGridView.DataBind();
             }
         }

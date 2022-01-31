@@ -169,7 +169,7 @@ namespace Calculator
         {
             Button clickedButton = (Button)sender;
 
-            Alert0Label.Text = "Equation format should be in format f(x) = 0. For example: 2x=4-2*x should be 2*x-4+2*x. <br /> If you want to draw a graph with given interval values it should look similiar to this 2*x+4interval[1;2;3;4;5].";
+            Alert0Label.Text = "Equation format should be in format f(x) = 0. For example: 2x=4-2*x should be 2*x-4+2*x. <br /> If you want to draw a graph with given interval values it should look similiar to this 2*x+4 interval[1;2;3;4;5].";
 
             DisplayTextBox.Text += clickedButton.Text;
         }
@@ -250,14 +250,14 @@ namespace Calculator
             {
                 double xValue = xValues[i];
                 x.setArgumentValue(xValue);
-                DebugLabel.Text += (string.Format("{0}={1}", y.getArgumentName(), y.getArgumentValue()));
+                //DebugLabel.Text += (string.Format("{0}={1}", y.getArgumentName(), y.getArgumentValue()));
                 yValues[i] = y.getArgumentValue();
             }
 
             series.Points.DataBindXY(xValues, yValues);
             SolutionChart.Series.Add(series);
 
-            string insertLine = string.Format("{0}={1} when x [{2}]", y.getArgumentExpressionString(), string.Join(", ", yValues), string.Join(", ", xValues));
+            string insertLine = string.Format("{0}=[{1}] when x [{2}]", y.getArgumentExpressionString(), string.Join(", ", yValues), string.Join(", ", xValues));
             InsertOperationToDatabase(insertLine);
         }
     }

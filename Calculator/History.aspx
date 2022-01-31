@@ -9,14 +9,14 @@
         <ContentTemplate>
             <asp:Label ID="errorLabel" ForeColor="Red" runat="server" Text=""></asp:Label>
             <asp:Label ID="Label1" ForeColor="Red" runat="server" Text=""></asp:Label>
-            <div>
+            <div style="width: 100%; margin: 0 auto;">
                 <asp:Label ID="FromDateTime" runat="server" Text="From: "></asp:Label><asp:TextBox ID="FromDateTimePicker" runat="server" TextMode="DateTimeLocal"></asp:TextBox>
                 <asp:Label ID="ToDateTime" runat="server" Text="To: "></asp:Label><asp:TextBox ID="ToDateTimePicker" runat="server" TextMode="DateTimeLocal"></asp:TextBox>
                 <asp:Button ID="SearchButton" runat="server" Text="Search" OnClick="SearchButton_Click" />
-                <asp:Button ID="ClearSearchButton" runat="server" Text="Show all" OnClick="ClearSearchButton_Click" />
+                <asp:Button ID="ClearSearchButton" runat="server" Text="Show Current Month (Default)" OnClick="ClearSearchButton_Click" />
                 <hr />
 
-                <asp:GridView ID="CalculationHistoryGridView" CssClass="historyTable" OnPageIndexChanging="CalculationHistoryGridView_PageIndexChanging" AllowPaging="true" PageSize="10" runat="server">
+                <asp:GridView ID="CalculationHistoryGridView" CssClass="historyTable" Width="100%" OnPageIndexChanging="CalculationHistoryGridView_PageIndexChanging" AllowPaging="true" PageSize="10" runat="server">
                 </asp:GridView>
         </ContentTemplate>
     </asp:UpdatePanel>
