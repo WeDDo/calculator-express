@@ -32,11 +32,11 @@
     grid-template-areas:
         "text text text text"
         "libracket ribracket interval intervalSeperator"
-        "lbracket rbracket x div"
-        "clear del root multi"
-        "seven eight nine minus"
-        "four five six plus"
-        "one two three result"
+        "lbracket rbracket x solve"
+        "clear del root div"
+        "seven eight nine multi"
+        "four five six minus"
+        "one two three plus"
         "zero zero dot result";
 }
 
@@ -59,6 +59,10 @@
 .margin-mid{
     display: block;
     margin: 0 auto;
+}
+
+.solve{
+    grid-area: solve;
 }
 
 .libracket {

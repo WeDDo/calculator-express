@@ -22,6 +22,13 @@ namespace Calculator
             if (!IsPostBack)
             {
                 DisplayTextBox.Text = string.Empty;
+                /*
+                string toSolve = string.Format("solve( {0}, x, {1}, {2} )", "x*x", int.MinValue + 1, int.MaxValue - 1);
+                Expression expression = new Expression(toSolve);
+                DebugLabel.Text = expression.calculate().ToString();
+                */
+                Expression expression = new Expression("(-5+4*10)*-1");
+                DebugLabel.Text = expression.calculate().ToString();
             }
         }
 
@@ -101,10 +108,14 @@ namespace Calculator
                 else
                 {
                     //Paprastos lygties pvz. [2x=2] sprendimas
-                    string toSolve = string.Format("solve( {0}, x, {1}, {2} )", DisplayTextBox.Text, int.MinValue, int.MaxValue);
+                    string[] values = DisplayTextBox.Text.Split(new string[] { "solve" }, StringSplitOptions.RemoveEmptyEntries);
+                    string equation = FormatExpression(values[0]);
+                    double[] rangeValues = Array.ConvertAll(values[1].Trim('[').Trim(']').Split(';'), s => double.Parse(s));
+
+                    string toSolve = string.Format("solve( {0}, x, {1}, {2} )", equation, rangeValues[0], rangeValues[rangeValues.Length - 1]);
                     Expression expression = new Expression(toSolve);
                     DisplayTextBox.Text = expression.calculate().ToString();
-                    string insertLine = string.Format("{0}={1}", expression.getExpressionString(), expression.calculate());
+                    string insertLine = string.Format("{0}={1} when x [{2};{3}]", expression.getExpressionString(), expression.calculate(), rangeValues[0], rangeValues[rangeValues.Length - 1]);
                     InsertOperationToDatabase(insertLine);
                 }
             }
@@ -169,7 +180,8 @@ namespace Calculator
         {
             Button clickedButton = (Button)sender;
 
-            Alert0Label.Text = "Equation format should be in format f(x) = 0. For example: 2x=4-2*x should be 2*x-4+2*x. <br /> If you want to draw a graph with given interval values it should look similiar to this 2*x+4 interval[1;2;3;4;5].";
+            Alert0Label.Text = "Equation format should be in format f(x) = 0. For example: 2*x=4-2*x should be 2*x-4+2*x. Range has to be defined with solve[minValue, maxValue] e.g. x*x-9 solve[0; 10]." +
+                " <br /> If you want to draw a graph with given interval values it should look similiar to this 2*x+4 interval[1;2;3;4;5].";
 
             DisplayTextBox.Text += clickedButton.Text;
         }
@@ -250,7 +262,6 @@ namespace Calculator
             {
                 double xValue = xValues[i];
                 x.setArgumentValue(xValue);
-                //DebugLabel.Text += (string.Format("{0}={1}", y.getArgumentName(), y.getArgumentValue()));
                 yValues[i] = y.getArgumentValue();
             }
 

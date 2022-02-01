@@ -44,10 +44,11 @@
                 <asp:Button ID="ButtonLIntervalBracket" runat="server" Text="[" CssClass="calculatorButton operation libracket" OnClick="Bracket_Click" />
                 <asp:Button ID="ButtonRLntervalBracket" runat="server" Text="]" CssClass="calculatorButton operation ribracket" OnClick="Bracket_Click" />
                 <asp:Button ID="ButtonInterval" runat="server" Text=" interval" CssClass="calculatorButton operation interval" OnClick="Bracket_Click" />
-                <asp:Button ID="IntervalSeperator" runat="server" Text=";" CssClass="calculatorButton operation intervalSeperator" OnClick="Bracket_Click" /> 
+                <asp:Button ID="IntervalSeperator" runat="server" Text=";" CssClass="calculatorButton operation intervalSeperator" OnClick="Bracket_Click" />
+                <asp:Button ID="ButtonSolveRange" runat="server" Text=" solve" CssClass="calculatorButton operation solve" OnClick="Bracket_Click" /> 
             </div>
             <div>
-                <asp:Chart ID="SolutionChart" CssClass="margin-mid" runat="server" ImageType="Png">
+                <asp:Chart ID="SolutionChart" CssClass="margin-mid" runat="server" ImageType="Png" ImageStorageMode="UseImageLocation">
                     <Series>
                     </Series>
                     <ChartAreas>
