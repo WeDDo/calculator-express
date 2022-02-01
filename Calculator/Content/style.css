@@ -3,14 +3,15 @@
     color: white;
     border: none;
     border-radius: 15px;
-    font-size: 20pt;
+    font-size: 22px;
     transition: all 0.6s;
     cursor: pointer;
-    max-width: 6em;
-    min-width: 6em;
+    max-width: 4em;
+    min-width: 4em;
+    min-height: 4em;
+    max-height: 4em;
     white-space: nowrap;
     overflow: hidden;
-    margin: 0 auto;
 }
 
 * {
@@ -19,25 +20,36 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.big-input {
+    width: 400px;
+    height: 50px;
+    padding: 10px;
+    font-size: 20px;
+}
+.small-input {
+    width: 150px;
+    height: 50px;
+    padding: 10px;
+    font-size: 20px;
+}
+
+.div-mid{
+    margin: auto;
+}
+
 .calculator {
     display: grid;
-    background: rgb(223, 223, 223);
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid black;
-    border-radius: 20px;
     gap: 5px;
-    width: 750px;
-    height: 550px;
+    width: 20%;
+    height: 500px;
     grid-template-areas:
         "text text text text"
-        "libracket ribracket interval intervalSeperator"
-        "lbracket rbracket x solve"
-        "clear del root div"
+        "clear del root pow"
+        "lbracket rbracket x div"
         "seven eight nine multi"
         "four five six minus"
         "one two three plus"
-        "zero zero dot result";
+        "empty zero dot result";
 }
 
 .display {
@@ -61,24 +73,8 @@
     margin: 0 auto;
 }
 
-.solve{
-    grid-area: solve;
-}
-
-.libracket {
-    grid-area: libracket;
-}
-
-.ribracket {
-    grid-area: ribracket;
-}
-
-.interval {
-    grid-area: interval;
-}
-
-.intervalSeperator {
-    grid-area: intervalSeperator;
+.pow{
+    grid-area: pow;
 }
 
 .lbracket{
@@ -123,8 +119,6 @@
 
 .zero{
     grid-area: zero;
-    margin: initial;
-    max-width: none;
 }
 
 .one{

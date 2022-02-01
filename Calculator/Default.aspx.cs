@@ -22,168 +22,128 @@ namespace Calculator
             if (!IsPostBack)
             {
                 DisplayTextBox.Text = string.Empty;
-                /*
-                string toSolve = string.Format("solve( {0}, x, {1}, {2} )", "x*x", int.MinValue + 1, int.MaxValue - 1);
-                Expression expression = new Expression(toSolve);
-                DebugLabel.Text = expression.calculate().ToString();
-                */
-                Expression expression = new Expression("(-5+4*10)*-1");
-                DebugLabel.Text = expression.calculate().ToString();
+                SetCalculatorVisibility(CalculatorRadioButtonList.SelectedItem.Text);
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         protected void Number_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
-            DisplayTextBox.Text += clickedButton.Text;
+            AddSymbol(clickedButton.Text);
         }
 
         protected void Operation_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
-
-            string text = DisplayTextBox.Text;
-
-            if (text.Length > 0)
-            {
-                //Jeigu pirmas simbolis yra minusas ir daugiau simboliu nera nieko nedaryti
-                if (Convert.ToChar(clickedButton.Text) == '-' && text[text.Length - 1] == '-' && text.Length == 1)
-                {
-                    return;
-                }
-
-                //Jei randamas --, simboliai pakeiciami i +
-                if (Convert.ToChar(clickedButton.Text) == '-' && text[text.Length - 1] == '-')
-                {
-                    DisplayTextBox.Text = text.Remove(text.Length - 1) + '+';
-                    return;
-                }
-
-                //Simboliu pakeitimas
-                if (text[text.Length - 1] == '+' || text[text.Length - 1] == '-' || text[text.Length - 1] == '*' || text[text.Length - 1] == '/')
-                {
-                    DisplayTextBox.Text = text.Remove(text.Length - 1) + clickedButton.Text;
-                }
-                else
-                {
-                    DisplayTextBox.Text += clickedButton.Text;
-                }
-            }
-            else
-            {
-                //Pirmo minuso pridejimas
-                if (Convert.ToChar(clickedButton.Text) == '-')
-                {
-                    DisplayTextBox.Text += clickedButton.Text;
-                }
-            }
+            AddSymbol(clickedButton.Text);
         }
+
         protected void ButtonResult_Click(object sender, EventArgs e)
         {
-            DisplayTextBox.Text = FormatExpression(DisplayTextBox.Text);
+            TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+            textBox.Text = FormatExpression(textBox.Text);
 
-            //Paprastos aritmetinės operacijos
-            if (!DisplayTextBox.Text.Contains("x"))
+            if (SimpleCalculatorDiv.Visible)
             {
-                Expression expression = new Expression(DisplayTextBox.Text);
-                DisplayTextBox.Text = expression.calculate().ToString();
-
+                Expression expression = new Expression(SimpleCalculatorDisplayTextBox.Text);
+                DisplayTextBox.Text = FormatExpression(expression.calculate().ToString());
                 string insertLine = string.Format("{0}={1}", expression.getExpressionString(), expression.calculate());
                 InsertOperationToDatabase(insertLine);
+                return;
             }
-            else
+            if (EquationCalculatorDiv.Visible)
             {
-                if (DisplayTextBox.Text.Contains("interval"))
-                {
-                    string[] values = DisplayTextBox.Text.Split(new string[] { "interval" }, StringSplitOptions.RemoveEmptyEntries);
-                    string equation = FormatExpression(values[0]);
-                    double[] xValues = Array.ConvertAll(values[1].Trim('[').Trim(']').Split(';'), s => double.Parse(s));
-                    SolveEquationWithInterval(equation, xValues);
-                }
-                else
-                {
-                    //Paprastos lygties pvz. [2x=2] sprendimas
-                    string[] values = DisplayTextBox.Text.Split(new string[] { "solve" }, StringSplitOptions.RemoveEmptyEntries);
-                    string equation = FormatExpression(values[0]);
-                    double[] rangeValues = Array.ConvertAll(values[1].Trim('[').Trim(']').Split(';'), s => double.Parse(s));
+                Expression expression = new Expression(EquationCalculatorDisplay2TextBox.Text);
+                string equation = EquationCalculatorDisplay1TextBox.Text + (expression.calculate() * -1).ToString();
+                string toSolve = string.Format("solve( {0}, x, {1}, {2} )", equation, int.MinValue, int.MaxValue);
 
-                    string toSolve = string.Format("solve( {0}, x, {1}, {2} )", equation, rangeValues[0], rangeValues[rangeValues.Length - 1]);
-                    Expression expression = new Expression(toSolve);
-                    DisplayTextBox.Text = expression.calculate().ToString();
-                    string insertLine = string.Format("{0}={1} when x [{2};{3}]", expression.getExpressionString(), expression.calculate(), rangeValues[0], rangeValues[rangeValues.Length - 1]);
-                    InsertOperationToDatabase(insertLine);
+                expression = new Expression(toSolve);
+                double result = expression.calculate();
+                if(result.ToString() == "NaN")
+                {
+                    expression = new Expression(EquationCalculatorDisplay2TextBox.Text);
+                    equation = EquationCalculatorDisplay1TextBox.Text + (expression.calculate() * -1).ToString();
+                    toSolve = string.Format("solve( {0}, x, {1}, {2} )", equation, 0, int.MaxValue);
+
+                    expression = new Expression(toSolve);
+                    result = expression.calculate();
+                    if (result.ToString() == "NaN")
+                    {
+                        expression = new Expression(EquationCalculatorDisplay2TextBox.Text);
+                        equation = EquationCalculatorDisplay1TextBox.Text + (expression.calculate() * -1).ToString();
+                        toSolve = string.Format("solve( {0}, x, {1}, {2} )", equation, int.MinValue, 0);
+
+                        expression = new Expression(toSolve);
+                        result = expression.calculate();
+                        if (result.ToString() == "NaN")
+                            DebugLabel.Text += "CAN'T BE CALCULATEDĄ";
+                    }
                 }
+                DisplayTextBox.Text = result.ToString();
+                string insertLine = string.Format("{0}={1}", expression.getExpressionString(), expression.calculate());
+                InsertOperationToDatabase(insertLine);
+
+                return;
+            }
+            if (FunctionCalculatorDiv.Visible)
+            {
+                string equation = FunctionCalculatorDisplayTextBox.Text;
+                double intervalStart = Convert.ToDouble(IntervalFromTextBox.Text);
+                double intervalEnd = Convert.ToDouble(IntervalToTextBox.Text);
+                double intervalStep = Convert.ToDouble(IntervalStepTextBox.Text);
+                List<double> xValues = new List<double>();
+
+                for (double i = intervalStart; i <= intervalEnd; i += intervalStep)
+                {
+                    xValues.Add(i);
+                }
+                SolveEquationWithInterval(equation, xValues);
+                return;
             }
             DisplayTextBox.Text = DisplayTextBox.Text.Replace(",", ".");
-            if (DisplayTextBox.Text.Contains("NaN"))
-            {
-                Alert0Label.Text = "Entered value could not be evaluated! Make sure it is in a correct format.";
-            }
-            else
-            {
-                Alert0Label.Text = string.Empty;
-            }
-            
         }
 
         protected void ButtonDot_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
-
-            string text = DisplayTextBox.Text;
-
-            if (text[text.Length - 1] != '.')
-            {
-                DisplayTextBox.Text += clickedButton.Text; ;
-            }
+            AddSymbol(clickedButton.Text);
         }
 
         protected void SingleOperation_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
-
-            if(clickedButton.Text == rootSymbol)
-            {
-                DisplayTextBox.Text += rootSymbol;
-            }
+            AddSymbol(clickedButton.Text);
         }
 
         protected void ButtonClear_Click(object sender, EventArgs e)
         {
-            DisplayTextBox.Text = string.Empty;
-            Alert0Label.Text = "";
+            TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+            textBox.Text = string.Empty;
+            AlertLabel.Text = "";
         }
 
         protected void ButtonDelete_Click(object sender, EventArgs e)
         {
-            if (DisplayTextBox.Text.Length > 0)
+            TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+            if (textBox.Text.Length > 0)
+            if (textBox.Text.Length > 0)
             {
-                DisplayTextBox.Text = DisplayTextBox.Text.Remove(DisplayTextBox.Text.Length - 1, 1);
-                if (!DisplayTextBox.Text.Contains("x"))
-                    Alert0Label.Text = "";
+                textBox.Text = textBox.Text.Remove(textBox.Text.Length - 1, 1);
+                if (!textBox.Text.Contains("x"))
+                    AlertLabel.Text = "";
             }
         }
 
         protected void Bracket_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
-
-            DisplayTextBox.Text += clickedButton.Text;
+            AddSymbol(clickedButton.Text);
         }
 
         protected void X_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
-
-            Alert0Label.Text = "Equation format should be in format f(x) = 0. For example: 2*x=4-2*x should be 2*x-4+2*x. Range has to be defined with solve[minValue, maxValue] e.g. x*x-9 solve[0; 10]." +
-                " <br /> If you want to draw a graph with given interval values it should look similiar to this 2*x+4 interval[1;2;3;4;5].";
-
-            DisplayTextBox.Text += clickedButton.Text;
+            AddSymbol(clickedButton.Text);
         }
 
         /// <summary>
@@ -220,9 +180,9 @@ namespace Calculator
         string FormatExpression(string expression)
         {
             int rootIndex = -1;
-            for (int i = 0; i < expression.Length ; i++)
+            for (int i = 0; i < expression.Length; i++)
             {
-                if(rootIndex != -1)
+                if (rootIndex != -1)
                 {
                     if (char.IsDigit(expression[i]) || expression[i] == 'x')
                     {
@@ -235,7 +195,7 @@ namespace Calculator
                     }
                 }
 
-                if(expression[i] == Convert.ToChar(rootSymbol))
+                if (expression[i] == Convert.ToChar(rootSymbol))
                 {
                     rootIndex = i;
                 }
@@ -244,25 +204,30 @@ namespace Calculator
             return expression;
         }
 
-        void SolveEquationWithInterval(string equation, double[] xValues)
+        void SolveEquationWithInterval(string equation, List<double> xValues)
         {
-            double[] yValues = new double[xValues.Length];
+            List<double> yValues = new List<double>();
             Argument x = new Argument("x");
             Argument y = new Argument(string.Format("y = {0}", equation), x);
 
             SolutionChart.Titles.Add(string.Format("Solution graph for {0}", equation));
             SolutionChart.ChartAreas[0].AxisX.Title = "X";
             SolutionChart.ChartAreas[0].AxisY.Title = "Y";
+            SolutionChart.ChartAreas[0].AxisX.LineWidth = 3;
+            SolutionChart.ChartAreas[0].AxisY.LineWidth = 3;
+            SolutionChart.ChartAreas[0].AxisX.IsMarginVisible = false;
+            SolutionChart.ChartAreas[0].AxisY.IsMarginVisible = false;
+            SolutionChart.ChartAreas[0].AxisX.Crossing = 0;
+            SolutionChart.ChartAreas[0].AxisY.Crossing = 0;
 
             Series series = new Series("EquationSolve");
             series.MarkerStyle = MarkerStyle.Circle;
             series.ChartType = SeriesChartType.Spline;
 
-            for (int i = 0; i < xValues.Length; i++)
+            foreach (var xValue in xValues)
             {
-                double xValue = xValues[i];
                 x.setArgumentValue(xValue);
-                yValues[i] = y.getArgumentValue();
+                yValues.Add(y.getArgumentValue());
             }
 
             series.Points.DataBindXY(xValues, yValues);
@@ -270,6 +235,171 @@ namespace Calculator
 
             string insertLine = string.Format("{0}=[{1}] when x [{2}]", y.getArgumentExpressionString(), string.Join(", ", yValues), string.Join(", ", xValues));
             InsertOperationToDatabase(insertLine);
+        }
+
+        protected void CalculatorRadioButtonList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var calculatorList = (RadioButtonList)sender;
+            string selectedItem = calculatorList.SelectedItem.Text;
+            SetCalculatorVisibility(selectedItem);
+        }
+
+        void SetCalculatorVisibility(string selectedItemText)
+        {
+            if (selectedItemText == "Basic Calculator")
+            {
+                SimpleCalculatorDiv.Visible = true;
+                EquationCalculatorDiv.Visible = false;
+                FunctionCalculatorDiv.Visible = false;
+                ViewState["mode"] = 0;
+                ViewState["currentTextBox"] = "SimpleCalculatorDisplayTextBox";
+                TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                textBox.Focus();
+            }
+
+            if (selectedItemText == "Equation Calculator")
+            {
+                SimpleCalculatorDiv.Visible = false;
+                EquationCalculatorDiv.Visible = true;
+                FunctionCalculatorDiv.Visible = false;
+                ViewState["mode"] = 1;
+                ViewState["currentTextBox"] = "EquationCalculatorDisplay1TextBox";
+                TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                textBox.Focus();
+            }
+
+            if (selectedItemText == "Function Calculator")
+            {
+                SimpleCalculatorDiv.Visible = false;
+                EquationCalculatorDiv.Visible = false;
+                FunctionCalculatorDiv.Visible = true;
+                ViewState["mode"] = 2;
+                ViewState["currentTextBox"] = "FunctionCalculatorDisplayTextBox";
+                TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                textBox.Focus();
+            }
+        }
+
+        protected void EquationCalculatorDisplay2TextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (EquationCalculatorDisplay2TextBox.Text.Contains('x'))
+            {
+                ErrorLabel.Text = "Second input field should only have numbers!";
+            }
+        }
+
+        void AddSymbol(string symbol)
+        {
+            TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+            textBox.Text += symbol;
+        }
+
+        protected void ButtonPrevious_Click(object sender, EventArgs e)
+        {
+            if ((int)ViewState["mode"] == 0)
+            {
+                if (ViewState["currentTextBox"].ToString() == "SimpleCalculatorDisplayTextBox")
+                {
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+                return;
+            }
+
+            if ((int)ViewState["mode"] == 1)
+            {
+                if (ViewState["currentTextBox"].ToString() == "EquationCalculatorDisplay2TextBox")
+                {
+                    ViewState["currentTextBox"] = "EquationCalculatorDisplay1TextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+                return;
+            }
+
+            if ((int)ViewState["mode"] == 2)
+            {
+                if (ViewState["currentTextBox"].ToString() == "IntervalStepTextBox")
+                {
+                    ViewState["currentTextBox"] = "IntervalToTextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+
+                if (ViewState["currentTextBox"].ToString() == "IntervalToTextBox")
+                {
+                    ViewState["currentTextBox"] = "IntervalFromTextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+
+                if (ViewState["currentTextBox"].ToString() == "IntervalFromTextBox")
+                {
+                    ViewState["currentTextBox"] = "FunctionCalculatorDisplayTextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+                return;
+            }
+        }
+
+        protected void ButtonNext_Click(object sender, EventArgs e)
+        {
+            if ((int)ViewState["mode"] == 0)
+            {
+                if (ViewState["currentTextBox"].ToString() == "SimpleCalculatorDisplayTextBox")
+                {
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+                return;
+            }
+
+            if ((int)ViewState["mode"] == 1)
+            {
+                if (ViewState["currentTextBox"].ToString() == "EquationCalculatorDisplay1TextBox")
+                {
+                    ViewState["currentTextBox"] = "EquationCalculatorDisplay2TextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+                return;
+            }
+
+            if ((int)ViewState["mode"] == 2)
+            {
+                if (ViewState["currentTextBox"].ToString() == "FunctionCalculatorDisplayTextBox")
+                {
+                    ViewState["currentTextBox"] = "IntervalFromTextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+
+                if (ViewState["currentTextBox"].ToString() == "IntervalFromTextBox")
+                {
+                    ViewState["currentTextBox"] = "IntervalToTextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+
+                if (ViewState["currentTextBox"].ToString() == "IntervalToTextBox")
+                {
+                    ViewState["currentTextBox"] = "IntervalStepTextBox";
+                    TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
+                    textBox.Focus();
+                    return;
+                }
+                return;
+            }
         }
     }
 }

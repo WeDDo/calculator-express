@@ -6,12 +6,45 @@
     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
         <ContentTemplate>
             <asp:Label ID="ErrorLabel" runat="server" Text=""></asp:Label>
-            <asp:Label ID="Alert0Label" runat="server" Text=""></asp:Label>
-            <asp:Label ID="Alert1Label" runat="server" Text=""></asp:Label>
+            <asp:Label ID="AlertLabel" runat="server" Text=""></asp:Label>
             <asp:Label ID="DebugLabel" runat="server" Text=""></asp:Label>
-            <div class="calculator">
-                <asp:TextBox ID="DisplayTextBox" CssClass="display text" runat="server"></asp:TextBox>
 
+            <!-- Calculator selection radio buttons -->
+            <asp:RadioButtonList ID="CalculatorRadioButtonList" runat="server" AutoPostBack="true" OnSelectedIndexChanged="CalculatorRadioButtonList_SelectedIndexChanged">
+                <asp:ListItem Text="Basic Calculator" runat="server" Selected="True"></asp:ListItem>
+                <asp:ListItem Text="Equation Calculator" runat="server"></asp:ListItem>
+                <asp:ListItem Text="Function Calculator" runat="server"></asp:ListItem>
+            </asp:RadioButtonList>
+            <!-- End of calculator selection radio buttons -->
+
+            <!-- Calculator display boxes -->
+            <div id="SimpleCalculatorDiv" class="div-mid" runat="server">
+                <asp:TextBox ID="SimpleCalculatorDisplayTextBox" CssClass="big-input" runat="server"></asp:TextBox>
+            </div>
+
+            <div id="EquationCalculatorDiv" class="div-mid" runat="server">
+                <asp:TextBox ID="EquationCalculatorDisplay1TextBox" CssClass="big-input" runat="server"></asp:TextBox>
+                =
+                <asp:TextBox ID="EquationCalculatorDisplay2TextBox" CssClass="small-input" runat="server" OnTextChanged="EquationCalculatorDisplay2TextBox_TextChanged"></asp:TextBox>
+            </div>
+
+            <div id="FunctionCalculatorDiv" class="div-mid" runat="server">
+                <asp:Label ID="FunctionLabel" runat="server" Text="f(x)="></asp:Label><asp:TextBox ID="FunctionCalculatorDisplayTextBox" CssClass="big-input" runat="server"></asp:TextBox>
+                <asp:Label ID="IntervalFromLabel" runat="server" Text="Interval start ="></asp:Label><asp:TextBox ID="IntervalFromTextBox" CssClass="small-input" runat="server"></asp:TextBox>
+                <asp:Label ID="IntervalToLabel" runat="server" Text="Interval end ="></asp:Label><asp:TextBox ID="IntervalToTextBox" CssClass="small-input"  runat="server"></asp:TextBox>
+                <asp:Label ID="IntervalStepLabel" runat="server" Text="Interval step ="></asp:Label><asp:TextBox ID="IntervalStepTextBox" CssClass="small-input" runat="server"></asp:TextBox>
+            </div>
+            <!-- End of display boxes -->
+
+            <!-- Calculator textbox controls -->
+            <div id="TextBoxControls" runat="server">
+                <asp:Button ID="ButtonPrevious" runat="server" Text="<-" OnClick="ButtonPrevious_Click"/>
+                <asp:Button ID="ButtonNext" runat="server" Text="->" OnClick="ButtonNext_Click" />
+            </div>
+            <!-- End of calculator textbox controls -->
+            <asp:Label ID="ResultLabel" runat="server" Text="Result:"></asp:Label>
+            <div class="calculator">
+                <asp:TextBox ID="DisplayTextBox" CssClass="big-input text" runat="server"></asp:TextBox>
                 <asp:Button ID="Button1" runat="server" Text="1" CssClass="calculatorButton one" OnClick="Number_Click" />
                 <asp:Button ID="Button2" runat="server" Text="2" CssClass="calculatorButton two" OnClick="Number_Click" />
                 <asp:Button ID="Button3" runat="server" Text="3" CssClass="calculatorButton three" OnClick="Number_Click" />
@@ -35,24 +68,20 @@
                 <asp:Button ID="ButtonLBracked" runat="server" Text="(" CssClass="calculatorButton lbracket" OnClick="Bracket_Click" />
                 <asp:Button ID="ButtonRBracked" runat="server" Text=")" CssClass="calculatorButton rbracket" OnClick="Bracket_Click" />
                 <asp:Button ID="ButtonX" runat="server" Text="x" CssClass="calculatorButton x" OnClick="X_Click" />
+                <asp:Button ID="ButtonPower" runat="server" Text="^" CssClass="calculatorButton pow" OnClick="Operation_Click" />
 
                 <asp:Button ID="AdditionButton" runat="server" Text="+" CssClass="calculatorButton operation plus" OnClick="Operation_Click" />
                 <asp:Button ID="SubtractionButton" runat="server" Text="-" CssClass="calculatorButton operation minus" OnClick="Operation_Click" />
                 <asp:Button ID="DivisionButoon" runat="server" Text="/" CssClass="calculatorButton operation div" OnClick="Operation_Click" />
                 <asp:Button ID="MultiplicationButton" runat="server" Text="*" CssClass="calculatorButton operation multi" OnClick="Operation_Click" />
-
-                <asp:Button ID="ButtonLIntervalBracket" runat="server" Text="[" CssClass="calculatorButton operation libracket" OnClick="Bracket_Click" />
-                <asp:Button ID="ButtonRLntervalBracket" runat="server" Text="]" CssClass="calculatorButton operation ribracket" OnClick="Bracket_Click" />
-                <asp:Button ID="ButtonInterval" runat="server" Text=" interval" CssClass="calculatorButton operation interval" OnClick="Bracket_Click" />
-                <asp:Button ID="IntervalSeperator" runat="server" Text=";" CssClass="calculatorButton operation intervalSeperator" OnClick="Bracket_Click" />
-                <asp:Button ID="ButtonSolveRange" runat="server" Text=" solve" CssClass="calculatorButton operation solve" OnClick="Bracket_Click" /> 
             </div>
-            <div>
-                <asp:Chart ID="SolutionChart" CssClass="margin-mid" runat="server" ImageType="Png" ImageStorageMode="UseImageLocation">
+            <div style="margin-top: 150px" >
+                <asp:Chart ID="SolutionChart" runat="server" ImageType="Png" ImageStorageMode="UseImageLocation">
                     <Series>
                     </Series>
                     <ChartAreas>
-                        <asp:ChartArea Name="ChartArea1"></asp:ChartArea>
+                        <asp:ChartArea Name="ChartArea1">
+                        </asp:ChartArea>
                     </ChartAreas>
                 </asp:Chart>
             </div>
