@@ -23,6 +23,14 @@ namespace Calculator
             {
                 DisplayTextBox.Text = string.Empty;
                 SetCalculatorVisibility(CalculatorRadioButtonList.SelectedItem.Text);
+                SimpleCalculatorHelpLabel.Text = "Calculate simple numerical expressions like 2+9*(5.5+6)-6^2+(6+2)/5.";
+                EquationCalculatorHelpLabel.Text = "Calculate equations with x. First field should contain x and in the second field there should only be numbers. For example 5*x+5=25.";
+                FunctionCalculatorHelpLabel.Text = "Calculate function results when given an interval.";
+                /*
+                string toSolve = string.Format("solve( 9*x - 80 , x, -999, 999 )");
+                Expression expression = new Expression(toSolve);
+                DebugLabel.Text = expression.calculate().ToString();
+                */
             }
         }
 
@@ -46,7 +54,7 @@ namespace Calculator
             if (SimpleCalculatorDiv.Visible)
             {
                 Expression expression = new Expression(SimpleCalculatorDisplayTextBox.Text);
-                DisplayTextBox.Text = FormatExpression(expression.calculate().ToString());
+                DisplayTextBox.Text = FormatExpression(expression.calculate().ToString()).Replace(",", ".");
                 string insertLine = string.Format("{0}={1}", expression.getExpressionString(), expression.calculate());
                 InsertOperationToDatabase(insertLine);
                 return;
@@ -76,11 +84,11 @@ namespace Calculator
                         expression = new Expression(toSolve);
                         result = expression.calculate();
                         if (result.ToString() == "NaN")
-                            DebugLabel.Text += "CAN'T BE CALCULATEDĄ";
+                            DebugLabel.Text += "CAN'T BE CALCULATED!";
                     }
                 }
-                DisplayTextBox.Text = result.ToString();
-                string insertLine = string.Format("{0}={1}", expression.getExpressionString(), expression.calculate());
+                DisplayTextBox.Text = result.ToString().Replace(",", ".");
+                string insertLine = string.Format("{0}, x={1}", equation + "=0", expression.calculate());
                 InsertOperationToDatabase(insertLine);
 
                 return;
@@ -100,7 +108,7 @@ namespace Calculator
                 SolveEquationWithInterval(equation, xValues);
                 return;
             }
-            DisplayTextBox.Text = DisplayTextBox.Text.Replace(",", ".");
+            DisplayTextBox.Text = DisplayTextBox.Text;
         }
 
         protected void ButtonDot_Click(object sender, EventArgs e)
@@ -273,6 +281,7 @@ namespace Calculator
                 SimpleCalculatorDiv.Visible = false;
                 EquationCalculatorDiv.Visible = false;
                 FunctionCalculatorDiv.Visible = true;
+
                 ViewState["mode"] = 2;
                 ViewState["currentTextBox"] = "FunctionCalculatorDisplayTextBox";
                 TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());

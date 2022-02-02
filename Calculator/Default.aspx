@@ -19,16 +19,19 @@
 
             <!-- Calculator display boxes -->
             <div id="SimpleCalculatorDiv" class="div-mid" runat="server">
+                <asp:Label ID="SimpleCalculatorHelpLabel" runat="server" Text="Label"></asp:Label><br />
                 <asp:TextBox ID="SimpleCalculatorDisplayTextBox" CssClass="big-input" runat="server"></asp:TextBox>
             </div>
 
             <div id="EquationCalculatorDiv" class="div-mid" runat="server">
+                <asp:Label ID="EquationCalculatorHelpLabel" runat="server" Text="Label"></asp:Label><br />
                 <asp:TextBox ID="EquationCalculatorDisplay1TextBox" CssClass="big-input" runat="server"></asp:TextBox>
                 =
                 <asp:TextBox ID="EquationCalculatorDisplay2TextBox" CssClass="small-input" runat="server" OnTextChanged="EquationCalculatorDisplay2TextBox_TextChanged"></asp:TextBox>
             </div>
 
             <div id="FunctionCalculatorDiv" class="div-mid" runat="server">
+                <asp:Label ID="FunctionCalculatorHelpLabel" runat="server" Text="Label"></asp:Label><br />
                 <asp:Label ID="FunctionLabel" runat="server" Text="f(x)="></asp:Label><asp:TextBox ID="FunctionCalculatorDisplayTextBox" CssClass="big-input" runat="server"></asp:TextBox>
                 <asp:Label ID="IntervalFromLabel" runat="server" Text="Interval start ="></asp:Label><asp:TextBox ID="IntervalFromTextBox" CssClass="small-input" runat="server"></asp:TextBox>
                 <asp:Label ID="IntervalToLabel" runat="server" Text="Interval end ="></asp:Label><asp:TextBox ID="IntervalToTextBox" CssClass="small-input"  runat="server"></asp:TextBox>
@@ -42,6 +45,7 @@
                 <asp:Button ID="ButtonNext" runat="server" Text="->" OnClick="ButtonNext_Click" />
             </div>
             <!-- End of calculator textbox controls -->
+
             <asp:Label ID="ResultLabel" runat="server" Text="Result:"></asp:Label>
             <div class="calculator">
                 <asp:TextBox ID="DisplayTextBox" CssClass="big-input text" runat="server"></asp:TextBox>

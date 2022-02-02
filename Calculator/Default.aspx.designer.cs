@@ -69,6 +69,15 @@ namespace Calculator
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl SimpleCalculatorDiv;
 
         /// <summary>
+        /// SimpleCalculatorHelpLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label SimpleCalculatorHelpLabel;
+
+        /// <summary>
         /// SimpleCalculatorDisplayTextBox control.
         /// </summary>
         /// <remarks>
@@ -85,6 +94,15 @@ namespace Calculator
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl EquationCalculatorDiv;
+
+        /// <summary>
+        /// EquationCalculatorHelpLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label EquationCalculatorHelpLabel;
 
         /// <summary>
         /// EquationCalculatorDisplay1TextBox control.
@@ -112,6 +130,15 @@ namespace Calculator
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl FunctionCalculatorDiv;
+
+        /// <summary>
+        /// FunctionCalculatorHelpLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label FunctionCalculatorHelpLabel;
 
         /// <summary>
         /// FunctionLabel control.
