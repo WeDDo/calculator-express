@@ -62,6 +62,56 @@ namespace Calculator
             if (EquationCalculatorDiv.Visible)
             {
                 Expression expression = new Expression(EquationCalculatorDisplay2TextBox.Text);
+                string expressionString = EquationCalculatorDisplay1TextBox.Text + (expression.calculate() * -1).ToString();
+                string solveString = "solve( {0}, x, {1}, {2} )";
+                string[] toSolve = new string[]
+                {
+                string.Format(solveString, expressionString, 0, int.MaxValue),
+                string.Format(solveString, expressionString, 1, int.MaxValue),
+                string.Format(solveString, expressionString, int.MinValue, 0),
+                string.Format(solveString, expressionString, int.MinValue, -1),
+                string.Format(solveString, expressionString, int.MinValue, 1),
+                string.Format(solveString, expressionString, -1, 1),
+                string.Format(solveString, expressionString, -10, 10),
+                string.Format(solveString, expressionString, -1000, 1000),
+                string.Format(solveString, expressionString, -100000, 100000),
+                string.Format(solveString, expressionString, -10000000, 10000000)
+                };
+
+                List<double> results = new List<double>();
+                for (int i = 0; i < toSolve.Length; i++)
+                {
+                    expression = new Expression(toSolve[i]);
+                    double result = expression.calculate();
+                    int tries = 0;
+                    if(result.ToString() != "NaN" && result.ToString() != int.MaxValue.ToString() && result.ToString() != int.MinValue.ToString() && result != 0)
+                    {
+                        results.Add(result);
+                    }
+                    while (result.ToString() == "NaN")
+                    {
+                        if (tries == 20)
+                        {
+                            break;
+                        }
+                        tries++;
+                        result = expression.calculate();
+                        results.Add(result);
+                    }
+                }
+
+                for (int i = 0; i < results.Count; i++)
+                {
+                    if(results[i].ToString() == "NaN")
+                    {
+                        results.Remove(results[i]);
+                    }
+                }
+
+                DisplayTextBox.Text = results[0].ToString();
+
+                /*
+                Expression expression = new Expression(EquationCalculatorDisplay2TextBox.Text);
                 string equation = EquationCalculatorDisplay1TextBox.Text + (expression.calculate() * -1).ToString();
                 string toSolve = string.Format("solve( {0}, x, {1}, {2} )", equation, int.MinValue, int.MaxValue);
 
@@ -90,7 +140,7 @@ namespace Calculator
                 DisplayTextBox.Text = result.ToString().Replace(",", ".");
                 string insertLine = string.Format("{0}, x={1}", equation + "=0", expression.calculate());
                 InsertOperationToDatabase(insertLine);
-
+                */
                 return;
             }
             if (FunctionCalculatorDiv.Visible)
@@ -134,12 +184,12 @@ namespace Calculator
         {
             TextBox textBox = (TextBox)TextBoxControls.FindControl(ViewState["currentTextBox"].ToString());
             if (textBox.Text.Length > 0)
-            if (textBox.Text.Length > 0)
-            {
-                textBox.Text = textBox.Text.Remove(textBox.Text.Length - 1, 1);
-                if (!textBox.Text.Contains("x"))
-                    AlertLabel.Text = "";
-            }
+                if (textBox.Text.Length > 0)
+                {
+                    textBox.Text = textBox.Text.Remove(textBox.Text.Length - 1, 1);
+                    if (!textBox.Text.Contains("x"))
+                        AlertLabel.Text = "";
+                }
         }
 
         protected void Bracket_Click(object sender, EventArgs e)
